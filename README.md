@@ -50,15 +50,17 @@
   
 
 # 데이터 전처리
-- 수치형 변수의 조합으로 feature engineering을 실시하여 8개 변수 생성('learning_intensity', 'learning_efficiency', 'achievement_per_session_time', 'learning_session_time_ratio', 'courses_completed_per_learning_days', 'community_engagement_achievement_interaction', 'abandoned_sessions_per_course_completed', 'abandoned_sessions_ratio')
-- lower bound와 upper bound 설정을 통해 수치형 변수 이상치 제거
-- subscription_type, payment_pattern 원핫 인코딩, preferred_difficult_level 라벨 인코딩 수행
-- 수치형 변수에 루트 값을 씌운 변수와 루트 1/3을 씌운 변수를 추가 생성
-- 수치형 변수 전체 min max scaler로 표준화 수행(정규분포를 띄도록 만들기 위해)-> 히스토그램으로 분포 확인 후 정규분포와 유사하지 않은 변수는 제거
-- 수치형 변수 2차 다항식 변환 변수 추가 생성
-- PolynomialFeatures를 사용하여 상호작용 변수들을 새롭게 생성
-- standard scaler로 표준화 수행 후 pca 수행
-- smote 수행
+- 선형보간법을 사용하여 최고기온과 최저기온 결측값 처리(채워진 최고기온과 최저기온값으로 일교차 결측값 문제 해결)
+- linear regression 모델로 일조율을 독립변수, 일조합을 종속변수로 설정하여 일조합 예측(결측값 처리) 채워진 일조합으로 다시 독립변수를 일조합 종속변수를 일조율로 설정하여 일조율 예측(일조합,일사합도 똑같은 방식으로 결측값 처리)
+- 평균 풍속 결측값은 월별 평균 풍속의 중앙값으로 결측값 대체
+- 강수량은 fillna함수의 bfill 방식으로 결측값 처리
+- datetime 함수를 활용하여 연,월,일 변수 새로 생성
+- 연 변수를 활용하여 주기함수 변수 'Day sin' 'Day cos' 새로 생성
+- 주차, 계절(봄,여름,가을,겨울) 변수 새로 생성(계절 변수는 원핫인코딩 수행)
+- train data의 '년', '월', '일', 'Day sin', 'Day cos', '주차','계절_가을','계절_겨울','계절_봄','계절_여름'독립변수로 일교차를 종속변수로 하여 catboost fitting-> submission data '년', '월', '일', 'Day sin', 'Day cos', '주차','계절_가을','계절_겨울','계절_봄','계절_여름'변수 활용하여 일교차 변수 예측하여 새로 생성(submission data는 일교차 변수가 따로 없어서 새로 생성)
+- 위와 똑같은 방식으로 독립변수에 일교차 추가하여 submission data의 일조율 변수 예측하여 새로 생성
+- 위와 똑같은 방식으로 독립변수에 일조율 추가하여 submission data의 평균습도 변수 예측하여 새로 생성
+- 위와 똑같은 방식으로 독립변수에 평균습도 추가하여 submission data의 강수량 변수 예측하여 새로 생성
 
 
 # 모델링
