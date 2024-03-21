@@ -64,11 +64,11 @@
 
 
 # 모델링
-- 하이퍼파라미터 튜닝을 optuna를 적용하여 xgboost 모델로 fitting(결과: macrof1= 약 0.50)
-- stacking 방법(xgboost+lgbm+catboost // 최종모델:logistic regression)을 활용하여 fitting(결과: 0.496)
-- votingclassifier(soft방식/xgboost+lgbm+catboost) 모델을 활용하여 fitting(결과: 약 0.50)
-- 하이퍼파라미터 튜닝을 optuna를 적용하여 catboost 모델로 fitting(결과: macrof1= 약 0.51) -> 최종모델 선정
+- parameter(random_state=2024,n_estimators=1000,learning_rate=0.01,max_depth=10,reg_lambda=3,verbosity=1) 설정후 xgboost 모델로 fitting(submission data MAE: 3.34)
+- randomsearchcv 방식으로 하이퍼파라미터 튜닝을 실시하여 나온 Best Parameters로{'bootstrap': True, 'max_depth': 40, 'max_features': 'log2', 'min_samples_leaf': 19, 'min_samples_split': 12, 'n_estimators': 1000} randomforest 모델로 fitting(submission data MAE: 3.22)
+- 가중치를 1:3으로 주어 votingregressor(randomforest+catboost) 모델로fitting(submission data MAE: 2.93)
+- parameter(random_state=2024,n_estimators=1000,learning_rate=0.01,depth=10,l2_leaf_reg=3,metric_period=1000,verbose=1000) 설정후 catboost 모델로 fitting(submission data MAE: 2.89) -> 가장 좋은 성능을 보여 최종모델로 선정
 
 
 # 느낀점
-- 아무래도 처음 나가는 경진대회이다 보니 EDA에서도 유의미하지 않은 시각화를 실시했다고 생각한다. 다음부터는 인사이트를 발견할 수 있도록 유의미한 시각화를 실시해야 한다는 걸 느꼈다. 전처리 또한 어느 정도 전처리가 완료 되었음에도 다른 방법으로 다시 표준화를 실시하는 건 잘못된 수행방법이라 생각한다. 아무래도 처음이다보니 여러가지 방법을 적용해 보고 싶어서 너무 무리하여 전처리를 진행했다. 모델링 같은 경우에도 좀 더 다양한 방법으로 시도해봐야 했었다는 아쉬움이 남는다.
+- submission data의 날짜 변수밖에 존재하지 않아 기존 train data의 변수들과 똑같은 변수로 맞추기 위해 모델링을 활용하여 새로운 변수를 생성하였던 것이 좋은 결과로 이어졌다고 생각한다. 이번 대회를 통해 feature engineering의 중요성을 확실하게 느끼게 되었고 다음 대회 때는 더 성능을 높일 수 있는 방안을 더 많이 생각해봐야 될 것 같다.
