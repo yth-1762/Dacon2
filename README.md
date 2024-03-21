@@ -11,26 +11,22 @@
  
 
 # 데이터
-- https://dacon.io/competitions/official/236179/data(데이터 출처) 
-- 데이터 개수 : 10000개
+- https://dacon.io/competitions/official/236200/data(데이터 출처)
+- 데이터 개수 : 23011개
   
-| Column | Description |
-|--------|-------------|
-| user_id | 사용자의 고유 식별자 |
-| subscription_duration | 사용자가 서비스에 가입한 기간 (월) |
-| recent_login_time | 사용자가 마지막으로 로그인한 시간 (일) |
-| average_login_time | 사용자의 일반적인 로그인 시간 |
-| average_time_per_learning_session | 각 학습 세션에 소요된 평균 시간 (분) |
-| monthly_active_learning_days | 월간 활동적인 학습 일수 |
-| total_completed_courses | 완료한 총 코스 수 |
-| recent_learning_achievement | 최근 학습 성취도 |
-| abandoned_learning_sessions | 중단된 학습 세션 수 |
-| community_engagement_level | 커뮤니티 참여도 |
-| preferred_difficulty_level | 선호하는 난이도 |
-| subscription_type | 구독 유형 |
-| customer_inquiry_history | 고객 문의 이력 |
-| payment_pattern | 사용자의 지난 3개월 간의 결제 패턴을 10진수로 표현한 값. |
-| target | 사용자가 다음 달에도 구독을 계속할지 (1) 또는 취소할지 (0)를 나타냅니다. |
+| Column | Non-Null Count | Dtype  |
+|--------|----------------|--------|
+| 일시     | 23011 non-null   | object |
+| 최고기온   | 23008 non-null   | float64|
+| 최저기온   | 23008 non-null   | float64|
+| 일교차    | 23007 non-null   | float64|
+| 강수량    | 9150 non-null    | float64|
+| 평균습도   | 23011 non-null   | float64|
+| 평균풍속   | 23007 non-null   | float64|
+| 일조합    | 22893 non-null   | float64|
+| 일사합    | 18149 non-null   | float64|
+| 일조율    | 22645 non-null   | float64|
+| 평균기온   | 23011 non-null   | float64|
 
   
 
@@ -38,18 +34,19 @@
 - python/ catboost
 
 # 모델 성능 지표
-- macrof1
+- MAE
 
 # EDA
-- target 변수 비율확인(1: 61.99% / 0: 38.01%)
-- 모든 범주형 변수 범주별 비율 확인(preferred_difficulty_level, subscription_type, payment_pattern)
-- 수치형 변수(subscription_duration, recent_login_time, average_login_time, average_time_per_learning_session, monthly_active_learning_days, total_completed_courses, recent_learning_achievement, abandoned_learning_sessions, community_engagement_level, customer_inquiry_history)  target 범주별 분포 히스토그램으로 확인
-- 수치형 변수별 preferred_difficulty_level count를 target별로 히스토그램, boxplot으로 확인(결과: target이 0인 데이터는 preferred_difficulty_level이 low, high, medium순으로 많고 target이 1인 데이터는 medium, low, high 순으로 많다.)
-- 수치형 변수별 subscription_type를 target별로 히스토그램, boxplot으로 확인(결과: target0, target1 모두 subscription_type이 basic이 premium보다 많다.-> 아무래도 어떤 조건이든 basic인 이용자들이 압도적으로 많아서라고 판단)
-- 수치형 변수별 payment_pattern를 target별로 히스토그램, boxplot으로 확인(결과: target 0,1 모두 0,1,2,3,4,5,6,7 순으로 count가 많음)
-- 수치형 변수의 상관관계를 heatmap으로 파악(가장 높은 것이 약 0.08로 모든 수치형변수 높지 않은 상관관계를 보임)
-- 범주형 변수('preferred_difficulty_level', 'payment_pattern)별 subscription_type을 target별로 히스토그램으로 확인(결과: target 0,1 모두 basic이 premium보다 높게 나옴.)
-
+- 기간에 따른 평균 기온을 PLOT으로 시각화 -> 정상성을 띄는 것을 확인(ADF TEST 결과도 정상성을 띄는 것으로 확인)
+- 연도별 평균기온을 PLOT으로 시각화 -> 우상향하는 경향 확인
+- 월별,주차별 평균기온을 PLOT으로 시각화 -> 여름에 가장 평균기온이 높고 겨울에 가장 낮은 것을 확인
+- 결측치 개수 확인(최고기온, 최저기온: 3개, 강수량: 13861개, 평균풍속: 4개, 일조합: 118개, 일사합: 4862개, 일조율: 366개)
+- 히스토그램으로 강수량 분포 확인(좌로 치우친 것을 확인, 0의 개수가 압도적으로 많음)
+- 일사합, 일조합, 일조율, 평균습도, 평균풍속을 히스토그램으로 확인(굳이 정규화를 안시켜도 된다고 판단)
+- 일교차와 평균습도와의 관계를 산점도로 확인(별다른 관계가 보이지 않음)
+- '일교차', '평균기온', '강수량', '평균습도', '평균풍속' pair plot으로 관계 확인(평균기온과 다른 변수들과의 관계를 살펴보았을 때 강수량을 제외하고는 비슷한 양상을 보임.(특별한 관계가 파악이 되지 않음) 강수량은 늘어날수록 평균기온의 분산이 줄어드는 것을 확인 ->강수량이 변수로 쓰일 가능성이 있다 생각함)
+- 수치형 변수 boxplot으로 전체적인 분포 확인(강수량이 0인 값이 압도적으로 많아서 이상치가 많게 나옴)
+- '일교차', '평균기온', '강수량', '평균습도', '평균풍속' 변수들 상관관계 확인 위해 heatmap으로 확인(오히려 평균기온과 가장 상관관계가 높은 것은 강수량이 아닌 평균습도였다. 그렇지만 산점도를 보았을 때 평균습도와 크게 연관성이 있는것으로는 보이지 않아 변수로 쓰일지는 미지수)
   
 
 # 데이터 전처리
